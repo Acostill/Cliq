@@ -32,6 +32,8 @@ class Store extends Component {
       bank: {price: 10000, rate: 100}
     }
 
+    this.interval = '';
+
   }
 
 
@@ -39,12 +41,14 @@ class Store extends Component {
     let name = e.target.name
     let upgrades = name+'Upgrades'
     let rate = name+'Rate'
-    this.setState({score: this.state.score-this.upgrades[name].price, [upgrades]: this.state[upgrades]+1})
+    this.setState({score: this.state.score-this.upgrades[name].price, [upgrades]: this.state[upgrades]+1, [rate]: this.state[rate]+1})
   }
 
   helperHandler = e => {
-    this.setState({helper: e.target.name})
-    setInterval(()=> this.setState({score: this.state.score+this.upgrades[e.target.name].rate}), 1000)
+    clearInterval(this.interval)
+    let targetName = e.target.name
+    this.setState({helper: targetName})
+    this.interval = setInterval(()=> this.setState({score: this.state.score+this.upgrades[targetName].rate}), 1000)
   }
 
   updateButtons = () => {
@@ -57,7 +61,7 @@ class Store extends Component {
   }
 
   pointHandler = (e) => {
-    this.setState({score: this.state.score+1})
+    this.setState({score: this.state.score+this.state.pointRate})
   }
 
   render(){

@@ -1,6 +1,8 @@
-const db = require("./index");
 const authHelpers = require("../auth/helpers");
 const passport = require("../auth/local");
+var pgp = require("pg-promise")({});
+var connectionString = "postgres://localhost/clicker";
+var db = pgp(connectionString);
 
 function getAllUsers(req, res, next) {
   db
@@ -16,6 +18,7 @@ function getAllUsers(req, res, next) {
       return next(err);
     });
 }
+
 
 function updateUserHobbies(req, res, next) {
   db
@@ -131,6 +134,27 @@ function registerUser(req, res, next) {
     });
 }
 
+
+
+function getLeaderBoard(req, res, next) {
+  db
+    .any("SELECT username, score FROM users ORDER BY score DESC LIMIT 5")
+    .then(function(data) {
+      res.status(200).json({
+        status: "success",
+        data: data,
+        message: "Fetched top 5 users"
+      });
+    })
+    .catch(function(err) {
+      return next(err);
+    });
+}
+
+
+
+
+
 module.exports = {
   getAllUsers: getAllUsers,
   getSingleUser: getSingleUser,
@@ -139,5 +163,6 @@ module.exports = {
   loginUser: loginUser,
   logoutuser: logoutUser,
   getUserHobbies: getUserHobbies,
-  updateUserHobbies: updateUserHobbies
+  updateUserHobbies: updateUserHobbies,
+  getLeaderBoard: getLeaderBoard
 };

@@ -4,16 +4,17 @@ class Store extends Component {
   constructor(props){
     super(props);
     this.state = {
-      points: 0,
+      score: 0,
       pointUpgrades: 0,
       bonusUpgrades: 0,
-      helper: false,
       pointRate: 1,
       bonusRate: 1,
-      helperLevel: 0,
-      helperStatus: {
-        house: false,
-        bank: false
+      helper: '',
+      buttonStatus: {
+        point: true,
+        bonus: true,
+        house: true,
+        bank: true
       }
     }
 
@@ -24,6 +25,13 @@ class Store extends Component {
       '5mins': '25%'
     }
 
+    this.upgrades = {
+      point: {update:1, price: 10 },
+      bonus: {update: 5, price: 1000},
+      house: {price: 5000, rate: 50},
+      bank: {price: 10000, rate: 100}
+    }
+
   }
 
 
@@ -31,38 +39,45 @@ class Store extends Component {
     let name = e.target.name
     let upgrades = name+'Upgrades'
     let rate = name+'Rate'
-    this.setState({[upgrades]: this.state[upgrades]+1})
+    this.setState({score: this.state.score-this.upgrades[name].price, [upgrades]: this.state[upgrades]+1})
   }
 
-  helperInitHandler = (e) => {
-    let helperStatus = this.state.helperStatus
-    helperStatus.house = true
-    !this.state.helper ?
-    this.setState({helper: true, helperLevel: 1}) :
-    this.setState({helperLevel: this.state.helperLevel+1, helperStatus: helperStatus})
+  helperHandler = e => {
+    this.setState({helper: e.target.name})
+    setInterval(()=> this.setState({score: this.state.score+this.upgrades[e.target.name].rate}), 1000)
   }
 
-  helperHandler = (e) => {
+  updateButtons = () => {
+    let obj = this.upgrades
+    for(let key in obj){
+      this.state.score >= obj[key].price ?
+        this.state.buttonStatus[key] = true :
+        this.state.buttonStatus[key] = false
+    }
+  }
 
+  pointHandler = (e) => {
+    this.setState({score: this.state.score+1})
   }
 
   render(){
+    this.updateButtons()
     console.log(this.state)
     return(
       <div id="side-menu">
          <div id="upgrades">
           <ul>
-           <li><div className="upgrade"><button name="point" onClick={this.upgradeHandler}>point</button></div></li>
-           <li><div className="upgrade"><button name="bonus" onClick={this.upgradeHandler}>bonus</button></div></li>
-           <li><div className="upgrade"><button name="helper" onClick={this.helperInitHandler}>helper</button></div></li>
+           <li><div className="upgrade"><button name="point" onClick={this.upgradeHandler} disabled={!this.state.buttonStatus.point}>point</button></div></li>
+           <li><div className="upgrade"><button name="bonus" onClick={this.upgradeHandler} disabled={!this.state.buttonStatus.bonus}>bonus</button></div></li>
           </ul>
          </div>
          <div id="helpers">
           <ul>
-           <li><div className="helper hidden"><button name="house" onClick={this.helperHandler} disabled={!this.state.helperStatus.house}>house</button></div></li>
-           <li><div className="helper hidden"><button name="bank" onClick={this.helperHandler} disabled={!this.state.helperStatus.bank}>bank</button></div></li>
+           <li><div className="helper hidden"><button name="house" onClick={this.helperHandler} disabled={!this.state.buttonStatus.house}>house</button></div></li>
+           <li><div className="helper hidden"><button name="bank" onClick={this.helperHandler} disabled={!this.state.buttonStatus.bank}>bank</button></div></li>
           </ul>
          </div>
+         <button onClick={this.pointHandler}>CLICK ME</button>
        </div>
     )
   }
